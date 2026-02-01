@@ -1,17 +1,24 @@
--- ===== PERIPHERALS =====
+-- =========================
+-- PERIPHERALS
+-- =========================
 local core = peripheral.find("draconic_rf_storage")
 local fgIn = peripheral.find("flow_gate")
 local fgOut = peripheral.find("flow_gate", function(_, p) return p ~= fgIn end)
 local mon = peripheral.find("monitor")
 if not mon then error("MONITOR NOT FOUND") end
+
 mon.setTextScale(0.5)
 
--- ===== CONSTANTS =====
+-- =========================
+-- CONSTANTS
+-- =========================
 local STEP = 50000
 local MIN_FLOW = 0
 local MAX_FLOW = 999999999
 
--- ===== HELPERS =====
+-- =========================
+-- HELPERS
+-- =========================
 local function text(x, y, t, fg, bg)
   mon.setTextColor(fg or colors.white)
   mon.setBackgroundColor(bg or colors.black)
@@ -41,10 +48,13 @@ local function fmt(n)
   else return tostring(n) end
 end
 
--- ===== CORE BALL =====
+-- =========================
+-- ENERGY CORE BALL (ANIMATED)
+-- =========================
 local function drawCore(x, y, pulse)
   local c1 = (pulse % 2 == 0) and colors.orange or colors.yellow
   local c2 = (pulse % 2 == 0) and colors.yellow or colors.orange
+
   local rows = {
     "  ####  ",
     " ###### ",
@@ -65,7 +75,9 @@ local function drawCore(x, y, pulse)
   end
 end
 
--- ===== MAIN DRAW =====
+-- =========================
+-- MAIN DRAW
+-- =========================
 local function draw(pulse)
   mon.setBackgroundColor(colors.black)
   mon.clear()
@@ -86,7 +98,7 @@ local function draw(pulse)
   text(29, 2, "DETAILS")
   text(29, 15, "CONTROLS")
 
-  -- CORE
+  -- CORE BALL
   drawCore(6, 5, pulse)
 
   -- DETAILS
@@ -94,8 +106,10 @@ local function draw(pulse)
   text(29, 5, "Stored:")
   text(29, 6, fmt(stored).." / INF RF", colors.lime)
   text(29, 7, "Fill: "..percent.."%")
+
   text(29, 9, "Input Max:")
   text(40, 9, fmt(inFlow).." RF/t", colors.lime)
+
   text(29, 10, "Output Max:")
   text(40, 10, fmt(outFlow).." RF/t", colors.red)
 
@@ -115,7 +129,9 @@ local function draw(pulse)
   mon.write(" - OUTPUT")
 end
 
--- ===== MAIN LOOP =====
+-- =========================
+-- MAIN LOOP (TIMER + CLICK)
+-- =========================
 local pulse = 0
 draw(pulse)
 
@@ -124,12 +140,14 @@ local timer = os.startTimer(0.3)
 while true do
   local e, a, b, c = os.pullEvent()
 
+  -- animation timer
   if e == "timer" and a == timer then
     pulse = pulse + 1
     drawCore(6, 5, pulse)
     timer = os.startTimer(0.3)
   end
 
+  -- mouse click
   if e == "monitor_touch" then
     local x, y = b, c
 
