@@ -119,28 +119,38 @@ end
 local pulse = 0
 draw(pulse)
 
-while true do
-  pulse = pulse + 1
-  drawCore(6, 5, pulse)
+local timer = os.startTimer(0.3)
 
-  local e, side, x, y = os.pullEventTimeout("monitor_touch", 0.3)
+while true do
+  local e, a, b, c = os.pullEvent()
+
+  if e == "timer" and a == timer then
+    pulse = pulse + 1
+    drawCore(6, 5, pulse)
+    timer = os.startTimer(0.3)
+  end
 
   if e == "monitor_touch" then
+    local x, y = b, c
+
     -- INPUT +
     if y == 17 and x >= 29 and x <= 36 then
       fgIn.setFlow(math.min(fgIn.getFlow() + STEP, MAX_FLOW))
       draw(pulse)
     end
+
     -- INPUT -
     if y == 17 and x >= 38 and x <= 45 then
       fgIn.setFlow(math.max(fgIn.getFlow() - STEP, MIN_FLOW))
       draw(pulse)
     end
+
     -- OUTPUT +
     if y == 19 and x >= 29 and x <= 36 then
       fgOut.setFlow(math.min(fgOut.getFlow() + STEP, MAX_FLOW))
       draw(pulse)
     end
+
     -- OUTPUT -
     if y == 19 and x >= 38 and x <= 45 then
       fgOut.setFlow(math.max(fgOut.getFlow() - STEP, MIN_FLOW))
